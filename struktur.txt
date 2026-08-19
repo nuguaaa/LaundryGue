@@ -1,0 +1,24 @@
+resources/
+└── views/
+    ├── admin/                          <-- (Wajib dibuat) Khusus Backend Admin/Kasir
+    │   ├── services/
+    │   │   ├── index.blade.php         <-- Tabel daftar harga
+    │   │   └── edit.blade.php          <-- Form ubah harga
+    │   ├── promos/
+    │   │   └── index.blade.php         <-- Pengaturan promo
+    │   └── transactions/
+    │       └── index.blade.php         <-- Kasir & data transaksi
+    │
+    ├── frontend/                       <-- (Wajib dibuat) Khusus Halaman Publik
+    │   ├── home.blade.php              <-- Landing page utama
+    │   └── tracking.blade.php          <-- Halaman cek status laundry
+    │
+    ├── layouts/
+    │   ├── app.blade.php               <-- Layout utama untuk halaman publik
+    │   └── admin.blade.php             <-- (Wajib dibuat) Layout khusus tampilan admin
+    │
+    ├── auth/                           <-- Bawaan Breeze (Login, Register, dll - biarkan saja)
+    ├── profile/                        <-- Bawaan Breeze (Pengaturan akun user - biarkan saja)
+    ├── components/                     <-- Bawaan Breeze (Komponen kecil - biarkan saja)
+    ├── dashboard.blade.php             <-- Bawaan Breeze (bisa nanti kita arahkan langsung ke /admin/services)
+    └── welcome.blade.php               <-- Bawaan Laravel (boleh diabaikan)
