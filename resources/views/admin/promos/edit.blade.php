@@ -19,9 +19,18 @@
                 <input type="text" name="code" value="{{ $promo->code }}" class="w-full px-3 py-2 border rounded-lg uppercase focus:outline-none focus:ring-2 focus:ring-brand" required>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Besaran Diskon:</label>
-                <input type="text" name="discount" value="{{ $promo->discount }}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" required>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Tipe Diskon:</label>
+                    <select name="type" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" required>
+                        <option value="percentage" {{ $promo->type == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                        <option value="fixed" {{ $promo->type == 'fixed' ? 'selected' : '' }}>Nominal Tetap (Rp)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Besar Nilai:</label>
+                    <input type="number" step="0.01" name="value" value="{{ $promo->value }}" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" required>
+                </div>
             </div>
 
             <div class="mb-4">

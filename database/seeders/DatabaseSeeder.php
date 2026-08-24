@@ -4,8 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Service;
+use App\Models\Transaction;
+use App\Models\Expense;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,7 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Membuat Akun Default (Admin & Kasir)
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin1@gmail.com'],
             [
                 'name' => 'Admin Laundry',
@@ -168,12 +171,112 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        // Masukkan data ke database tanpa duplikasi
+        // Masukkan data layanan ke database tanpa duplikasi
         foreach ($services as $service) {
             Service::firstOrCreate(
                 ['name' => $service['name']],
                 $service
             );
+        }
+
+        // Ambil ID layanan pertama untuk relasi detail transaksi dummy
+        $sampleService = Service::first();
+
+        // 3. Data Dummy Pendapatan (History) & Pengeluaran Masif (Tahun 2026)
+        if ($sampleService) {
+
+            // A. Buat 30 Data Acak Tersebar di Tahun 2026 (Januari - Agustus)
+            for ($i = 1; $i <= 30; $i++) {
+                $randomDate = Carbon::create(2026, rand(1, 8), rand(1, 28), rand(8, 18));
+
+                $trx = Transaction::create([
+                    'invoice_code' => 'INV-2026-' . rand(1000, 9999),
+                    'customer_name' => 'Pelanggan 2026 #' . $i,
+                    'customer_phone' => '08123456' . rand(100, 999),
+                    'total_price' => rand(3, 15) * 10000, // Harga bervariasi 30rb - 150rb
+                    'status' => 'Diambil',
+                    'user_id' => $admin->id,
+                    'created_at' => $randomDate,
+                    'updated_at' => $randomDate,
+                ]);
+
+                $trx->details()->create([
+                    'service_id' => $sampleService->id,
+                    'quantity' => rand(1, 3),
+                    'subtotal' => $trx->total_price
+                ]);
+
+                Expense::create([
+                    'item_name' => 'Pengeluaran Operasional #' . $i,
+                    'quantity' => 1,
+                    'unit_price' => rand(1, 5) * 10000,
+                    'total_price' => rand(1, 5) * 10000,
+                    'created_at' => $randomDate,
+                    'updated_at' => $randomDate,
+                ]);
+            }
+
+            // B. Data KHUSUS HARI INI (Agar filter "Hari Ini" pasti ada isinya)
+            for ($i = 1; $i <= 5; $i++) {
+                $today = Carbon::today();
+
+                $trx = Transaction::create([
+                    'invoice_code' => 'INV-TODAY-' . rand(100, 999),
+                    'customer_name' => 'Pelanggan Hari Ini ' . $i,
+                    'customer_phone' => '08888888' . $i,
+                    'total_price' => 50000 * $i,
+                    'status' => 'Diambil',
+                    'user_id' => $admin->id,
+                    'created_at' => $today,
+                    'updated_at' => $today,
+                ]);
+
+                $trx->details()->create([
+                    'service_id' => $sampleService->id,
+                    'quantity' => 1,
+                    'subtotal' => $trx->total_price
+                ]);
+
+                Expense::create([
+                    'item_name' => 'Belanja Hari Ini #' . $i,
+                    'quantity' => 1,
+                    'unit_price' => 15000,
+                    'total_price' => 15000,
+                    'created_at' => $today,
+                    'updated_at' => $today,
+                ]);
+            }
+
+            // C. Data TAHUN LALU (2025) - Untuk memastikan filter tidak bocor
+            for ($i = 1; $i <= 5; $i++) {
+                $lastYear = Carbon::now()->subYear();
+
+                $trx = Transaction::create([
+                    'invoice_code' => 'INV-OLD-' . rand(100, 999),
+                    'customer_name' => 'Pelanggan Tahun Lalu ' . $i,
+                    'customer_phone' => '08999999' . $i,
+                    'total_price' => 300000,
+                    'status' => 'Diambil',
+                    'user_id' => $admin->id,
+                    'created_at' => $lastYear,
+                    'updated_at' => $lastYear,
+                ]);
+
+                $trx->details()->create([
+                    'service_id' => $sampleService->id,
+                    'quantity' => 5,
+                    'subtotal' => $trx->total_price
+                ]);
+
+                Expense::create([
+                    'item_name' => 'Maintenance Tahun Lalu #' . $i,
+                    'quantity' => 1,
+                    'unit_price' => 100000,
+                    'total_price' => 100000,
+                    'created_at' => $lastYear,
+                    'updated_at' => $lastYear,
+                ]);
+            }
         }
     }
 }

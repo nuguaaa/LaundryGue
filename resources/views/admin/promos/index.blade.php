@@ -1,5 +1,11 @@
 @extends('layouts.admin')
 
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ __('Manajemen Promo & Diskon') }}
+    </h2>
+@endsection
+
 @section('content')
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -30,7 +36,9 @@
                             <div class="text-xs text-gray-500 font-normal">{{ Str::limit($promo->description, 40) }}</div>
                         </td>
                         <td class="py-3 px-4 font-mono font-bold text-brand uppercase">{{ $promo->code }}</td>
-                        <td class="py-3 px-4 text-sm font-semibold text-green-600">{{ $promo->discount }}</td>
+                        <td class="py-3 px-4 text-sm font-semibold text-green-600">
+                            {{ $promo->type == 'percentage' ? $promo->value . '%' : 'Rp ' . number_format($promo->value, 0, ',', '.') }}
+                        </td>
                         <td class="py-3 px-4 text-sm text-gray-600">{{ \Carbon\Carbon::parse($promo->expired_date)->format('d M Y') }}</td>
                         <td class="py-3 px-4 text-center space-x-2">
                             <a href="{{ route('admin.promos.edit', $promo->id) }}" class="inline-block bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-600 transition shadow-sm">Ubah</a>
