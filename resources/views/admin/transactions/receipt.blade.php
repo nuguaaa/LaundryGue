@@ -25,12 +25,12 @@
         <button onclick="window.print()" style="padding: 5px 10px; cursor: pointer; background: #000; color: #fff;">Cetak Struk</button>
     </div>
 
-    <!-- Header Toko -->
+    <!-- Header Toko (Mengambil dari Database Settings & Nama LaundryGue) -->
     <div class="text-center border-bottom">
         <h3 style="margin: 0;">LAUNDRY GUE</h3>
-        <p style="margin: 2px 0;">Jl. Somawinata cidahu No.139, Tanimulya, Kabupaten Bandung Barat</p>
+        <p style="margin: 2px 0;">{{ $settings['address'] ?? 'Alamat belum diatur' }}</p>
         <br>
-        <p style="margin: 2px 0;">Telp: 08123456789</p>
+        <p style="margin: 2px 0;">Telp/WA: {{ $settings['whatsapp'] ?? 'Belum diatur' }}</p>
     </div>
 
     <!-- Info Transaksi -->
@@ -81,7 +81,7 @@
     </div>
 
     <div class="text-center" style="margin-top: 15px; font-size: 11px;">
-        <p style="margin: 2px 0;">Terima Kasih Atas Kunjungan Anda</p>
+        <p style="margin: 2px 0;">Terima Kasih Atas Kunjungan Anda di LaundryGue</p>
         <p style="margin: 2px 0;">Cucian belum diambil > 30 hari diluar tanggung jawab kami.</p>
     </div>
 

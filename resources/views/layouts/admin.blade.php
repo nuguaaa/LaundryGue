@@ -40,14 +40,23 @@
 
                 <!-- Menu Link -->
                 <nav class="p-4 space-y-1">
-                    <a href="{{ route('admin.services.index') }}"
-                        class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.services.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
-                        Kelola Harga Layanan
-                    </a>
-                    <a href="{{ route('admin.promos.index') }}"
-                        class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.promos.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
-                        Kelola Promo & Diskon
-                    </a>
+                    @if(auth()->user()->role == 'admin')
+                        <!-- Menu Khusus Admin -->
+                        <a href="{{ route('admin.services.index') }}"
+                            class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.services.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
+                            Kelola Harga Layanan
+                        </a>
+                        <a href="{{ route('admin.promos.index') }}"
+                            class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.promos.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
+                            Kelola Promo & Diskon
+                        </a>
+                        <a href="{{ route('admin.settings.index') }}"
+                            class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
+                            Pengaturan Website
+                        </a>
+                    @endif
+
+                    <!-- Menu Kasir & Admin (Bisa diakses keduanya) -->
                     <a href="{{ route('admin.transactions.create') }}"
                         class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.transactions.create') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
                         Halaman Kasir (Input Pesanan)
@@ -56,14 +65,18 @@
                         class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.transactions.index') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
                         Pesanan Aktif (Status Cucian)
                     </a>
-                    <a href="{{ route('admin.transactions.history') }}"
-                        class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.transactions.history') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
-                        Laporan & History Transaksi
-                    </a>
-                    <a href="{{ route('admin.users.index') }}"
-                        class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.users.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
-                        Kelola User
-                    </a>
+
+                    @if(auth()->user()->role == 'admin')
+                        <!-- Menu Khusus Admin (Laporan & User) -->
+                        <a href="{{ route('admin.transactions.history') }}"
+                            class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.transactions.history') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
+                            Laporan & History Transaksi
+                        </a>
+                        <a href="{{ route('admin.users.index') }}"
+                            class="block px-4 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.users.*') ? 'bg-sky-50 text-brand' : 'text-gray-600 hover:bg-gray-50' }}">
+                            Kelola User
+                        </a>
+                    @endif
                 </nav>
             </div>
 
@@ -85,7 +98,7 @@
             <!-- Top Header Bar -->
             <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shadow-sm">
                 <div class="text-sm font-medium text-gray-700">
-                    Dashboard Kasir & Admin
+                    Dashboard {{ ucfirst(auth()->user()->role ?? 'Admin') }} Laundry
                 </div>
                 <div class="flex items-center space-x-6">
                     <a href="{{ url('/') }}" target="_blank"
@@ -93,7 +106,7 @@
                         Lihat Website &rarr;
                     </a>
                     <span class="text-sm font-semibold text-gray-800">
-                        {{ Auth::user()->name ?? 'Admin Laundry' }}
+                        {{ Auth::user()->name ?? 'Admin Laundry' }} ({{ ucfirst(Auth::user()->role ?? 'Admin') }})
                     </span>
                 </div>
             </header>

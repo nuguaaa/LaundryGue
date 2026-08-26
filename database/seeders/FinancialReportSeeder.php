@@ -2,53 +2,105 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Service;
+use Illuminate\Database\Seeder;
 use App\Models\Transaction;
 use App\Models\Expense;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
-class DatabaseSeeder extends Seeder
+class FinancialReportSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Akun
-        $admin = User::firstOrCreate(['email' => 'admin1@gmail.com'], ['name' => 'Admin', 'password' => Hash::make('12345678')]);
+        // 1. Buat Data untuk HARI INI
+        for ($i = 1; $i <= 3; $i++) {
+            $today = Carbon::today();
 
-        // 2. Services (Singkat agar tidak panjang)
-        $services = [['name' => 'Cuci Express', 'price' => 10000], ['name' => 'Deep Clean', 'price' => 40000]];
-        foreach ($services as $s) Service::firstOrCreate(['name' => $s['name']], $s);
-        $sId = Service::first()->id;
-
-        // 3. SEEDER DATA MASIF (Tahun 2026)
-        // Kita buat 50 data transaksi dan 50 pengeluaran tersebar di tahun 2026
-        for ($i = 1; $i <= 50; $i++) {
-            // Random tanggal di tahun 2026
-            $randomDate = Carbon::create(2026, rand(1, 8), rand(1, 28), rand(8, 20));
-
-            // Transaksi (Pendapatan)
             $trx = Transaction::create([
-                'invoice_code' => 'INV-2026-' . $i,
-                'customer_name' => 'Pelanggan ' . $i,
-                'customer_phone' => '08123456789',
-                'total_price' => rand(5, 20) * 10000,
+                'invoice_code' => 'INV-TODAY-' . rand(100, 999),
+                'customer_name' => 'Pelanggan Hari Ini ' . $i,
+                'customer_phone' => '081111222' . $i,
+                'total_price' => 75000 * $i,
                 'status' => 'Diambil',
-                'user_id' => $admin->id,
-                'created_at' => $randomDate,
-                'updated_at' => $randomDate,
+                'user_id' => 1,
+                'created_at' => $today,
+                'updated_at' => $today,
             ]);
-            $trx->details()->create(['service_id' => $sId, 'quantity' => 1, 'subtotal' => $trx->total_price]);
 
-            // Pengeluaran
-            Expense::create([
-                'item_name' => 'Item Pengeluaran ' . $i,
+            $trx->details()->create([
+                'service_id' => 1,
                 'quantity' => 1,
-                'unit_price' => rand(1, 5) * 10000,
-                'total_price' => rand(1, 5) * 10000,
-                'created_at' => $randomDate,
-                'updated_at' => $randomDate,
+                'subtotal' => $trx->total_price
+            ]);
+
+            Expense::create([
+                'item_name' => 'Sabun Cuci Hari Ini #' . $i,
+                'quantity' => 2,
+                'unit_price' => 15000,
+                'total_price' => 30000,
+                'created_at' => $today,
+                'updated_at' => $today,
+            ]);
+        }
+
+        // 2. Buat Data untuk BULAN INI (Agustus 2026) tapi bukan hari ini
+        for ($i = 1; $i <= 4; $i++) {
+            $thisMonth = Carbon::now()->startOfMonth()->addDays(rand(1, 15));
+
+            $trx = Transaction::create([
+                'invoice_code' => 'INV-MONTH-' . rand(100, 999),
+                'customer_name' => 'Pelanggan Bulan Ini ' . $i,
+                'customer_phone' => '082222333' . $i,
+                'total_price' => 150000,
+                'status' => 'Diambil',
+                'user_id' => 1,
+                'created_at' => $thisMonth,
+                'updated_at' => $thisMonth,
+            ]);
+
+            $trx->details()->create([
+                'service_id' => 1,
+                'quantity' => 2,
+                'subtotal' => $trx->total_price
+            ]);
+
+            Expense::create([
+                'item_name' => 'Pewangi Pakaian Bulanan #' . $i,
+                'quantity' => 1,
+                'unit_price' => 50000,
+                'total_price' => 50000,
+                'created_at' => $thisMonth,
+                'updated_at' => $thisMonth,
+            ]);
+        }
+
+        // 3. Buat Data untuk TAHUN LALU (2025) - Nilai besar untuk menguji filter
+        for ($i = 1; $i <= 3; $i++) {
+            $lastYear = Carbon::now()->subYear();
+
+            $trx = Transaction::create([
+                'invoice_code' => 'INV-OLD-' . rand(100, 999),
+                'customer_name' => 'Pelanggan Tahun Lalu ' . $i,
+                'customer_phone' => '083333444' . $i,
+                'total_price' => 500000,
+                'status' => 'Diambil',
+                'user_id' => 1,
+                'created_at' => $lastYear,
+                'updated_at' => $lastYear,
+            ]);
+
+            $trx->details()->create([
+                'service_id' => 1,
+                'quantity' => 5,
+                'subtotal' => $trx->total_price
+            ]);
+
+            Expense::create([
+                'item_name' => 'Maintenance Mesin Tahun Lalu #' . $i,
+                'quantity' => 1,
+                'unit_price' => 200000,
+                'total_price' => 200000,
+                'created_at' => $lastYear,
+                'updated_at' => $lastYear,
             ]);
         }
     }

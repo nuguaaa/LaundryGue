@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\Service;
 use App\Models\Promo;
 use App\Models\Expense;
+use App\Models\Setting; // <-- Pastikan model Setting di-import di sini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -191,16 +192,37 @@ class TransactionController extends Controller
     public function printReceipt(Transaction $transaction)
     {
         $transaction->load(['user', 'details.service']);
-        return view('admin.transactions.receipt', compact('transaction'));
+
+        // Mengambil data pengaturan website/toko dari database
+        $settings = Setting::pluck('value', 'key');
+
+        return view('admin.transactions.receipt', compact('transaction', 'settings'));
     }
 
-public function checkOrderStatus($invoiceCode)
+    public function checkOrderStatus($invoiceCode)
     {
         $transaction = Transaction::with(['details.service', 'user'])
             ->where('invoice_code', $invoiceCode)
             ->firstOrFail();
 
         return view('frontend.cek-pesanan', compact('transaction'));
+    }
+
+    public function trackOrder(Request $request)
+    {
+        $request->validate([
+            'invoice_code' => 'required|string',
+        ]);
+
+        $transaction = Transaction::with(['details.service', 'user'])
+            ->where('invoice_code', trim($request->invoice_code))
+            ->first();
+
+        if (!$transaction) {
+            return back()->with('error', 'Nomor nota / invoice tidak ditemukan. Periksa kembali ketikan Anda!');
+        }
+
+        return redirect()->route('cek.pesanan', $transaction->invoice_code);
     }
 
     public function storeExpense(Request $request)

@@ -30,9 +30,9 @@
                     <th class="py-3 px-4">Pelanggan</th>
                     <th class="py-3 px-4">Layanan</th>
                     <th class="py-3 px-4">Total Biaya</th>
-                    <th class="py-3 px-4">Diproses Oleh</th> <!-- Kolom Baru: Nama Kasir/Admin -->
+                    <th class="py-3 px-4">Diproses Oleh</th>
                     <th class="py-3 px-4">Status Cucian</th>
-                    <th class="py-3 px-4 text-center">Aksi</th>
+                    <th class="py-3 px-4 text-center">Aksi & Notifikasi WA</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -50,7 +50,6 @@
                         </td>
                         <td class="py-3 px-4 font-bold text-gray-800">Rp{{ number_format($trx->total_price, 0, ',', '.') }}</td>
 
-                        <!-- Menampilkan Nama Kasir/Admin yang bertugas -->
                         <td class="py-3 px-4 text-sm">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
                                 {{ $trx->user->name ?? 'Sistem / Tidak Diketahui' }}
@@ -70,11 +69,23 @@
                                 </select>
                             </form>
                         </td>
-                        <td class="py-3 px-4 text-center">
+
+                        <td class="py-3 px-4 text-center space-y-2">
+                            <!-- Tombol Kirim WA Otomatis jika status Selesai -->
+                            @if($trx->status == 'Selesai' && !empty($trx->customer_phone))
+                                <div>
+                                    <a href="https://wa.me/{{ $trx->customer_phone }}?text=Halo%20kak%20{{ urlencode($trx->customer_name) }},%20cucian%20dengan%20nomor%20resi%20*{{ $trx->invoice_code }}*%20di%20LaundryGue%20sudah%20selesai%20dan%20siap%20diambil%20ya!%20Terima%20kasih."
+                                       target="_blank"
+                                       class="inline-flex items-center justify-center gap-1 bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-emerald-700 transition shadow-sm">
+                                        💬 Kirim WA Selesai
+                                    </a>
+                                </div>
+                            @endif
+
                             <form action="{{ route('admin.transactions.destroy', $trx->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus pesanan ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-600 transition shadow-sm">Hapus</button>
+                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-red-600 transition shadow-sm">Hapus</button>
                             </form>
                         </td>
                     </tr>
