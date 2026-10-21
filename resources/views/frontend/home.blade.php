@@ -7,7 +7,7 @@
         <div class="absolute bottom-0 left-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-indigo-100/50 rounded-full blur-[100px] md:blur-[140px] -z-10 pointer-events-none"></div>
 
         <div class="max-w-5xl mx-auto text-center">
-            <div class="inline-flex items-center gap-2 bg-sky-50 border border-sky-100 text-sky-700 text-[11px] md:text-xs font-bold uppercase px-3.5 py-2 rounded-full tracking-wider mb-6 md:mb-8 shadow-sm">
+            <div class="inline-flex items-center gap-2 bg-sky-50 border border-sky-100 text-sky-700 text-[11px] md:text-xs font-bold uppercase px-3.5 py-2 rounded-full tracking-wider mb-6 md:mb-8 shadow-sm animate-float">
                 <svg class="w-4 h-4 text-sky-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 <span>Standar Layanan Publik Terakreditasi A</span>
             </div>
@@ -21,7 +21,7 @@
             </p>
 
             <!-- KOTAK CEK RESI / INVOICE MANDIRI -->
-            <div id="tracking" class="bg-white p-6 sm:p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_20px_50px_rgba(8,112,184,0.07)] border border-slate-100 max-w-2xl mx-auto text-left relative">
+            <div id="tracking" class="bg-white p-6 sm:p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_20px_50px_rgba(8,112,184,0.07)] hover:shadow-[0_25px_60px_rgba(8,112,184,0.12)] border border-slate-100 max-w-2xl mx-auto text-left relative transition duration-300">
                 <div class="flex items-center space-x-3.5 md:space-x-4 mb-4">
                     <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center shadow-inner shrink-0">
                         <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
@@ -34,6 +34,11 @@
 
                 <p class="text-xs text-slate-500 mb-5">Masukkan nomor invoice unik transaksi Anda untuk menampilkan log tahapan pencucian.</p>
 
+                <div id="trackOrderAjaxError" class="hidden mb-5 bg-red-50 border border-red-200 text-red-600 text-xs p-3.5 md:p-4 rounded-xl md:rounded-2xl font-semibold flex items-center gap-3 animate-fade-in-up">
+                    <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span id="trackOrderAjaxErrorText"></span>
+                </div>
+
                 @if(session('error'))
                     <div class="mb-5 bg-red-50 border border-red-100 text-red-600 text-xs p-3.5 md:p-4 rounded-xl md:rounded-2xl font-semibold flex items-center gap-3">
                         <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -41,17 +46,17 @@
                     </div>
                 @endif
 
-                <form action="{{ route('track.order') }}" method="POST" class="flex flex-col sm:flex-row gap-3">
+                <form id="trackOrderForm" action="{{ route('track.order') }}" method="POST" class="flex flex-col sm:flex-row gap-3">
                     @csrf
                     <div class="relative flex-1">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
                         </span>
-                        <input type="text" name="invoice_code" placeholder="CONTOH: INV-2026-001" required
-                            class="w-full bg-slate-50 border border-slate-200/80 rounded-xl md:rounded-2xl pl-12 pr-4 py-3.5 md:py-4 text-xs md:text-sm font-mono uppercase text-slate-900 placeholder-slate-400 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
+                        <input type="text" name="invoice_code" id="trackInvoiceInput" placeholder="CONTOH: INV-2026-001" required
+                            class="w-full bg-slate-50 border border-slate-200/80 rounded-xl md:rounded-2xl pl-12 pr-4 py-3.5 md:py-4 text-base sm:text-sm font-mono uppercase text-slate-900 placeholder-slate-400 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
                     </div>
-                    <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-6 md:px-8 py-3.5 md:py-4 rounded-xl md:rounded-2xl font-bold text-xs md:text-sm shadow-lg shadow-sky-600/30 transition-all duration-300 flex items-center justify-center gap-2 shrink-0">
-                        <span>Cek Status</span>
+                    <button type="submit" id="trackSubmitBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-6 md:px-8 py-3.5 md:py-4 rounded-xl md:rounded-2xl font-bold text-sm shadow-lg shadow-sky-600/30 transition-all duration-300 flex items-center justify-center gap-2 shrink-0">
+                        <span id="trackBtnText">Cek Status</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
                 </form>
@@ -62,6 +67,14 @@
     <!-- SECTION PROMO AKTIF -->
     @php
         $activePromos = isset($promos) ? $promos : collect();
+        $latestPromo = $activePromos->where('expired_date', '>=', now()->toDateString())->sortByDesc('id')->first() 
+                       ?? $activePromos->sortByDesc('id')->first();
+        if ($latestPromo) {
+            $promoVal = $latestPromo->value;
+            $formattedDiscount = $latestPromo->type === 'percentage'
+                ? (is_numeric($promoVal) ? rtrim(rtrim(number_format((float)$promoVal, 2, '.', ''), '0'), '.') . '%' : $promoVal . '%')
+                : (is_numeric($promoVal) ? 'Rp ' . number_format((float)$promoVal, 0, ',', '.') : 'Rp ' . $promoVal);
+        }
     @endphp
 
     @if($activePromos->count() > 0)
@@ -83,9 +96,9 @@
                 </p>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-6 md:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 @foreach($activePromos as $promo)
-                <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)] max-w-md bg-slate-800/80 border border-slate-700/80 rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group hover:border-sky-500 transition duration-300">
+                <div class="w-full bg-slate-800/80 border border-slate-700/80 rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group hover:border-sky-500 transition duration-300">
                     <div class="absolute top-0 right-0 bg-sky-600 text-white text-[10px] md:text-xs font-extrabold px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider">
                         Diskon {{ $promo->value ?? 'Spesial' }}
                     </div>
@@ -342,6 +355,80 @@
         </div>
     </div>
 
+    @if(isset($latestPromo) && $latestPromo)
+        <!-- FLOATING PROMO NOTIFICATION (ATAS POJOK KANAN) -->
+        <div id="latestPromoNotification" 
+             data-promo-id="{{ $latestPromo->id }}"
+             class="fixed top-20 sm:top-24 md:top-28 right-4 left-4 sm:left-auto sm:right-6 z-40 sm:max-w-sm sm:w-96 bg-slate-900/95 text-white backdrop-blur-xl border border-sky-500/40 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 transition-all duration-300 transform translate-y-0 animate-fade-in-up">
+            
+            <!-- Header Notifikasi: Badge & Tombol Tutup -->
+            <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider shadow-sm">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400 animate-pulse"></i>
+                    <span>Promo Terbaru!</span>
+                </div>
+                <button type="button" 
+                        id="closePromoNotifBtn" 
+                        class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer" 
+                        title="Tutup Notifikasi Promo"
+                        aria-label="Tutup Notifikasi Promo">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Konten Notifikasi -->
+            <div class="space-y-2">
+                <div class="flex items-start justify-between gap-2">
+                    <h4 class="text-sm sm:text-base font-extrabold text-white leading-snug tracking-tight">
+                        {{ $latestPromo->title }}
+                    </h4>
+                    <span class="shrink-0 bg-sky-600 text-white text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wide shadow-sm">
+                        {{ $formattedDiscount ?? 'Promo' }}
+                    </span>
+                </div>
+
+                @if(!empty($latestPromo->description))
+                    <p class="text-xs text-slate-300 leading-relaxed line-clamp-2">
+                        {{ $latestPromo->description }}
+                    </p>
+                @endif
+
+                <!-- Voucher Kode Kupon Box -->
+                <div class="bg-slate-800/90 border border-dashed border-sky-400/50 rounded-2xl p-2.5 flex items-center justify-between gap-2 mt-3">
+                    <div class="min-w-0">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Kupon Voucher</span>
+                        <span class="font-mono font-black text-sky-400 text-xs sm:text-sm tracking-wider truncate block" id="promoCodeText">{{ $latestPromo->code }}</span>
+                    </div>
+                    <button type="button" 
+                            id="copyPromoCodeBtn" 
+                            class="shrink-0 bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl transition shadow-sm cursor-pointer flex items-center gap-1">
+                        <i data-lucide="copy" class="w-3 h-3"></i>
+                        <span id="copyPromoBtnText">Salin</span>
+                    </button>
+                </div>
+
+                <!-- Footer Notif: Expired & CTA Klaim -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] mt-2">
+                    @if(isset($latestPromo->expired_date))
+                        <span class="text-slate-400 flex items-center gap-1 text-[10px] sm:text-[11px]">
+                            <i data-lucide="calendar" class="w-3 h-3 text-sky-400"></i>
+                            <span>s/d {{ \Carbon\Carbon::parse($latestPromo->expired_date)->format('d M Y') }}</span>
+                        </span>
+                    @else
+                        <span></span>
+                    @endif
+
+                    <a href="https://wa.me/{{ $settings['whatsapp'] ?? '6281220295876' }}?text={{ urlencode('Halo Admin, saya ingin klaim promo ' . $latestPromo->title . ' dengan Kode Kupon: ' . $latestPromo->code) }}" 
+                       target="_blank" 
+                       class="inline-flex items-center gap-1 text-[11px] font-bold text-sky-400 hover:text-sky-300 transition group ml-auto">
+                        <span>Klaim Sekarang</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <script>
         const modal = document.getElementById('serviceModal');
         const modalContainer = document.getElementById('modalContainer');
@@ -375,5 +462,100 @@
                 closeModal();
             }
         });
+
+        // AJAX Handler Pelacakan Resi Mandiri
+        const trackForm = document.getElementById('trackOrderForm');
+        const trackErrBox = document.getElementById('trackOrderAjaxError');
+        const trackErrText = document.getElementById('trackOrderAjaxErrorText');
+        const trackBtn = document.getElementById('trackSubmitBtn');
+        const trackBtnText = document.getElementById('trackBtnText');
+        const trackInput = document.getElementById('trackInvoiceInput');
+
+        trackForm?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (trackErrBox) trackErrBox.classList.add('hidden');
+            if (trackBtn) trackBtn.disabled = true;
+            if (trackBtnText) trackBtnText.textContent = 'Memeriksa...';
+
+            try {
+                const res = await fetch(trackForm.action, {
+                    method: 'POST',
+                    body: new FormData(trackForm),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await res.json().catch(() => null);
+
+                if (res.ok && data && data.success && data.redirect) {
+                    const splash = document.getElementById('splashScreen');
+                    if (splash) {
+                        splash.style.display = 'flex';
+                        splash.classList.remove('opacity-0', 'pointer-events-none');
+                    }
+                    window.location.href = data.redirect;
+                } else {
+                    const msg = (data && data.message) ? data.message : 'Nomor nota / invoice tidak ditemukan. Periksa kembali ketikan Anda!';
+                    if (trackErrText) trackErrText.textContent = msg;
+                    if (trackErrBox) trackErrBox.classList.remove('hidden');
+                    if (trackInput) {
+                        trackInput.classList.add('border-red-400', 'ring-2', 'ring-red-200');
+                        setTimeout(() => trackInput.classList.remove('border-red-400', 'ring-2', 'ring-red-200'), 3000);
+                    }
+                    if (trackBtn) trackBtn.disabled = false;
+                    if (trackBtnText) trackBtnText.textContent = 'Cek Status';
+                }
+            } catch (err) {
+                trackForm.submit();
+            }
+        });
+
+        @if(isset($latestPromo) && $latestPromo)
+        // Floating Latest Promo Handler
+        const promoNotif = document.getElementById('latestPromoNotification');
+        const closePromoBtn = document.getElementById('closePromoNotifBtn');
+        const copyPromoBtn = document.getElementById('copyPromoCodeBtn');
+        const promoCodeText = '{{ $latestPromo->code ?? "" }}';
+
+        if (promoNotif) {
+            const promoId = promoNotif.getAttribute('data-promo-id');
+            // Cek jika user sudah pernah menutup notifikasi promo ini di sesi saat ini
+            if (promoId && sessionStorage.getItem('promo_closed_' + promoId) === 'true') {
+                promoNotif.remove();
+            }
+
+            // Notifikasi tidak akan hilang sampai ditutup secara eksplisit oleh user
+            closePromoBtn?.addEventListener('click', function() {
+                promoNotif.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+                setTimeout(() => {
+                    promoNotif.remove();
+                }, 300);
+                if (promoId) {
+                    sessionStorage.setItem('promo_closed_' + promoId, 'true');
+                }
+            });
+
+            // Salin kupon voucher
+            copyPromoBtn?.addEventListener('click', async function() {
+                try {
+                    await navigator.clipboard.writeText(promoCodeText);
+                    const btnText = document.getElementById('copyPromoBtnText');
+                    if (btnText) {
+                        btnText.textContent = 'Tersalin!';
+                        setTimeout(() => { btnText.textContent = 'Salin'; }, 2000);
+                    }
+                } catch (e) {
+                    const btnText = document.getElementById('copyPromoBtnText');
+                    if (btnText) btnText.textContent = promoCodeText;
+                }
+            });
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+        @endif
     </script>
 @endsection

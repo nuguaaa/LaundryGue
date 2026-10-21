@@ -83,6 +83,7 @@
     <div class="text-center" style="margin-top: 15px; font-size: 11px;">
         <p style="margin: 2px 0;">Terima Kasih Atas Kunjungan Anda di LaundryGue</p>
         <p style="margin: 2px 0;">Cucian belum diambil > 30 hari diluar tanggung jawab kami.</p>
+        <p style="margin: 4px 0 0 0; font-size: 10px; color: #555;">Dibuat oleh <strong>nugua</strong></p>
     </div>
 
 </body>

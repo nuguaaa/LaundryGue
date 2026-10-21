@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\ProfileController;
 use App\Models\Service;
 
 // ==========================================
@@ -34,6 +35,12 @@ Route::get('/dashboard', function () {
     return redirect()->route('admin.transactions.create');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
 
 // ==========================================
 // RUTE KHUSUS KASIR & ADMIN (Akses Operasional)
@@ -44,6 +51,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,kasir'])
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::put('transactions/{transaction}/status', [TransactionController::class, 'updateStatus'])->name('transactions.status');
     Route::get('transactions/{transaction}/receipt', [TransactionController::class, 'printReceipt'])->name('transactions.receipt');
+
+    // Halaman History / Pengeluaran (Bisa diakses Kasir untuk input pengeluaran)
+    Route::get('transactions-history', [TransactionController::class, 'history'])->name('transactions.history');
+    Route::post('expenses', [TransactionController::class, 'storeExpense'])->name('expenses.store');
 });
 
 
@@ -58,9 +69,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
 
-    Route::get('transactions-history', [TransactionController::class, 'history'])->name('transactions.history');
-
-    Route::post('expenses', [TransactionController::class, 'storeExpense'])->name('expenses.store');
+    // Input manual riwayat lama & hapus hanya oleh admin
+    Route::post('transactions/manual', [TransactionController::class, 'storeManual'])->name('transactions.manual.store');
+    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::delete('expenses/{id}', [TransactionController::class, 'destroyExpense'])->name('expenses.destroy');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -68,8 +79,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
-
-    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 });
 
 Route::get('/laporan/cetak', [TransactionController::class, 'printReport'])->name('laporan.cetak')->middleware(['auth', 'role:admin']);

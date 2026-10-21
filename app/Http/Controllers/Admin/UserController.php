@@ -36,16 +36,25 @@ public function store(Request $request)
 
     public function destroy(User $user) {
         $user->delete(); // Ini otomatis masuk ke tabel trashed (soft delete)
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'User dipindahkan ke history.']);
+        }
         return back()->with('success', 'User dipindahkan ke history.');
     }
 
     public function restore($id) {
         User::onlyTrashed()->find($id)->restore();
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'User dikembalikan.']);
+        }
         return back()->with('success', 'User dikembalikan.');
     }
 
     public function forceDelete($id) {
         User::onlyTrashed()->find($id)->forceDelete(); // Hapus permanen dari database
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'User dihapus permanen.']);
+        }
         return back()->with('success', 'User dihapus permanen.');
     }
 }

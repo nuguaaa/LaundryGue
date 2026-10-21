@@ -66,6 +66,10 @@ class ServiceController extends Controller
     {
         $service->delete();
 
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Layanan berhasil dihapus!']);
+        }
+
         return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil dihapus!');
     }
 }

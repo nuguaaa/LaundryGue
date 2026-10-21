@@ -4,18 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Laporan Keuangan Laundry</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
-        body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; font-size: 14px; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header h2, .header p { margin: 5px 0; }
-        .summary { display: flex; justify-content: space-between; margin-bottom: 20px; background: #f4f4f4; padding: 15px; border-radius: 5px; }
+        body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: #1e293b; margin: 0; padding: 20px; font-size: 13px; }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0f172a; padding-bottom: 12px; }
+        .header h2 { margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #0f172a; }
+        .header p { margin: 3px 0; font-size: 12px; color: #64748b; }
+        .summary { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: #f8fafc; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
         .summary div { text-align: center; flex: 1; }
-        .summary h3 { margin: 5px 0 0 0; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
-        th { background-color: #f8f9fa; }
+        .summary small { text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #64748b; display: block; margin-bottom: 4px; }
+        .summary h3 { margin: 0; font-size: 18px; font-weight: 800; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 12px; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+        th { background-color: #f1f5f9; font-weight: 700; color: #334155; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
         .text-right { text-align: right; }
-        .footer { margin-top: 50px; text-align: right; float: right; }
+        .footer { margin-top: 50px; text-align: right; float: right; font-size: 12px; }
 
         /* Pengaturan khusus saat dicetak (Print Mode) */
         @media print {
@@ -114,6 +120,10 @@
         <p>Pimpinan / Admin Laundry</p>
         <br><br><br>
         <p><strong>( ___________________ )</strong></p>
+    </div>
+
+    <div style="clear: both; padding-top: 40px; text-align: center; font-size: 11px; color: #64748b;">
+        <p>Sistem Informasi LaundryGue &bull; Dibuat oleh <strong>nugua</strong></p>
     </div>
 
 </body>
