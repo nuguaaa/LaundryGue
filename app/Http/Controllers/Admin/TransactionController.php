@@ -362,9 +362,22 @@ class TransactionController extends Controller
 
     public function checkOrderStatus($invoiceCode)
     {
+        $cleanInvoice = strtoupper(trim(ltrim($invoiceCode, '#')));
         $transaction = Transaction::with(['details.service', 'user'])
             ->where('invoice_code', $invoiceCode)
-            ->firstOrFail();
+            ->orWhere('invoice_code', $cleanInvoice)
+            ->orWhere('invoice_code', 'INV-' . $cleanInvoice)
+            ->first();
+
+        if (!$transaction) {
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nomor nota / nomor resi tidak ditemukan. Periksa kembali ketikan Anda!'
+                ], 404);
+            }
+            return redirect()->to(url('/') . '#tracking')->with('error', 'Nomor nota ' . htmlspecialchars($invoiceCode) . ' tidak ditemukan. Periksa kembali ketikan Anda!');
+        }
 
         $isCompleted = in_array($transaction->status, ['Selesai', 'Diambil']);
         $isExpired = false;
@@ -441,20 +454,42 @@ class TransactionController extends Controller
         ]);
 
         $queryInput = trim($request->invoice_code);
+        $upperInput = strtoupper(ltrim($queryInput, '#'));
+
         $transaction = Transaction::with(['details.service', 'user'])
-            ->where('invoice_code', $queryInput)
+            ->where(function ($q) use ($queryInput, $upperInput) {
+                $q->where('invoice_code', $queryInput)
+                  ->orWhere('invoice_code', $upperInput)
+                  ->orWhere('invoice_code', 'INV-' . $upperInput)
+                  ->orWhere('invoice_code', 'like', "%{$upperInput}%");
+            })
             ->first();
 
         // Jika tidak ditemukan dengan nomor nota persis, cek apakah berupa nomor telepon pelanggan
         if (!$transaction) {
-            $cleanPhone = preg_replace('/[^0-9]/', '', $queryInput);
-            if (strlen($cleanPhone) >= 8) {
+            $cleanDigits = preg_replace('/[^0-9]/', '', $queryInput);
+            if (strlen($cleanDigits) >= 7) {
+                $phoneSuffix = preg_replace('/^(0|62)/', '', $cleanDigits);
+
+                $phoneVariations = array_filter([$queryInput, $cleanDigits]);
+                if (!empty($phoneSuffix) && strlen($phoneSuffix) >= 6) {
+                    $phoneVariations[] = '0' . $phoneSuffix;
+                    $phoneVariations[] = '62' . $phoneSuffix;
+                    $phoneVariations[] = '+62' . $phoneSuffix;
+                    $phoneVariations[] = $phoneSuffix;
+                }
+                $phoneVariations = array_values(array_unique($phoneVariations));
+
                 // Utamakan mencari transaksi aktif (Baru/Proses/Selesai), jika tidak ada baru ambil riwayat terakhir
                 $transaction = Transaction::with(['details.service', 'user'])
-                    ->where(function ($q) use ($queryInput, $cleanPhone) {
-                        $q->where('customer_phone', $queryInput)
-                          ->orWhere('customer_phone', $cleanPhone)
-                          ->orWhere('customer_phone', 'like', "%{$cleanPhone}%");
+                    ->where(function ($q) use ($phoneVariations, $phoneSuffix) {
+                        foreach ($phoneVariations as $var) {
+                            $q->orWhere('customer_phone', $var)
+                              ->orWhere('customer_phone', 'like', "%{$var}%");
+                        }
+                        if (!empty($phoneSuffix)) {
+                            $q->orWhereRaw("REPLACE(REPLACE(REPLACE(customer_phone, '-', ''), ' ', ''), '+', '') LIKE ?", ["%{$phoneSuffix}%"]);
+                        }
                     })
                     ->orderByRaw("CASE WHEN status IN ('Baru', 'Proses', 'Selesai') THEN 0 ELSE 1 END")
                     ->latest('id')
@@ -484,6 +519,8 @@ class TransactionController extends Controller
             return back()->with('error', $msg);
         }
 
+        $paymentStatus = $transaction->payment_status ?? ($transaction->status === 'Diambil' ? 'Lunas' : ($transaction->is_paid ? 'Lunas' : 'Belum Lunas'));
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -511,7 +548,7 @@ class TransactionController extends Controller
                     },
                     'total_price' => $transaction->total_price,
                     'formatted_total' => 'Rp ' . number_format($transaction->total_price, 0, ',', '.'),
-                    'payment_status' => $transaction->payment_status ?? ($transaction->is_paid ? 'Lunas' : 'Belum Lunas'),
+                    'payment_status' => $paymentStatus,
                     'created_at' => $transaction->created_at ? $transaction->created_at->format('d M Y, H:i') : null,
                     'updated_at' => $transaction->updated_at ? $transaction->updated_at->format('d M Y, H:i') : null,
                     'items' => $transaction->details->map(fn($d) => [

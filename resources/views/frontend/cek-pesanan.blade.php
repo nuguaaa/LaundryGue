@@ -20,6 +20,13 @@
         .animate-fade-in-up {
             animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        @media print {
+            header, footer, #splashScreen, .no-print, button, a[href*="wa.me"] { display: none !important; }
+            body { background: #fff !important; color: #000 !important; }
+            main { padding: 0 !important; max-width: 100% !important; }
+            .bg-slate-900\/90, .bg-slate-950\/60, .bg-slate-950\/40 { background: #fff !important; border: 1px solid #ddd !important; color: #000 !important; box-shadow: none !important; }
+            h1, h2, span, p, div { color: #000 !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white relative overflow-x-hidden">
@@ -196,7 +203,7 @@
                     </div>
                     <div class="border-t border-slate-800/60 pt-3 flex justify-between items-center text-slate-400 text-xs">
                         <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i> Waktu Masuk</span>
-                        <span class="font-semibold text-slate-200">{{ $transaction->created_at->format('d M Y, H:i') }}</span>
+                        <span class="font-semibold text-slate-200">{{ $transaction->created_at ? $transaction->created_at->format('d M Y, H:i') : '-' }}</span>
                     </div>
                     <div class="border-t border-slate-800/60 pt-3 flex justify-between items-center text-slate-400 text-xs">
                         <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-slate-500"></i> Petugas Kasir</span>
@@ -210,12 +217,14 @@
                         <i data-lucide="receipt" class="w-4 h-4 text-sky-400"></i> Rincian Tarif & Layanan
                     </h2>
                     <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 space-y-3">
-                        @foreach($transaction->details as $detail)
+                        @forelse($transaction->details as $detail)
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-slate-300 font-medium">{{ $detail->service->name ?? 'Layanan' }} <span class="text-xs text-slate-500">({{ $detail->quantity }} {{ $detail->service->unit ?? 'Kg' }})</span></span>
                             <span class="font-mono font-semibold text-slate-200">Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</span>
                         </div>
-                        @endforeach
+                        @empty
+                        <div class="text-xs text-slate-400 italic">Paket Layanan Laundry</div>
+                        @endforelse
                         <div class="border-t border-slate-800 pt-3 flex justify-between items-center text-sm font-bold">
                             <span class="text-slate-400">Total Biaya:</span>
                             <span class="text-sky-400 text-base font-mono">Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</span>
@@ -223,10 +232,33 @@
                     </div>
                 </div>
 
-                <div class="mt-6">
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings['whatsapp'] ?? '6281220295876') }}?text=Halo%20Admin%20LaundryGue,%20saya%20ingin%20menanyakan%20status%20pesanan%20dengan%20nomor%20resi%20*{{ $transaction->invoice_code }}*" target="_blank" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-lg shadow-emerald-900/20 text-sm">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i> Hubungi Outlet via WhatsApp
+                <!-- QR Code Resi & Nota Digital Mandiri -->
+                <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 sm:p-5 text-center mb-6">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">QR Code Pelacakan & Validasi Resi</span>
+                    <div class="inline-block p-2.5 bg-white rounded-xl shadow-lg shadow-sky-950/30">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(url('/cek-pesanan/' . $transaction->invoice_code)) }}" 
+                             alt="QR Cek Pesanan {{ $transaction->invoice_code }}" 
+                             class="w-28 h-28 sm:w-32 sm:h-32 object-contain mx-auto"
+                             loading="lazy">
+                    </div>
+                    <p class="text-[11px] font-mono text-slate-400 mt-2.5">Scan kode QR di atas untuk membuka status nota langsung di ponsel</p>
+                </div>
+
+                @php
+                    $rawWa = $settings['whatsapp'] ?? '6281220295876';
+                    $cleanWa = preg_replace('/[^0-9]/', '', $rawWa);
+                    if (str_starts_with($cleanWa, '0')) {
+                        $cleanWa = '62' . substr($cleanWa, 1);
+                    }
+                @endphp
+
+                <div class="mt-6 flex flex-col sm:flex-row gap-2.5">
+                    <a href="https://wa.me/{{ $cleanWa }}?text=Halo%20Admin%20LaundryGue,%20saya%20ingin%20menanyakan%20status%20pesanan%20dengan%20nomor%20resi%20*{{ $transaction->invoice_code }}*" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-lg shadow-emerald-900/20 text-sm">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i> Hubungi via WhatsApp
                     </a>
+                    <button type="button" onclick="window.print()" class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl transition border border-slate-700 text-sm flex items-center justify-center gap-2 shrink-0">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Cetak / Simpan
+                    </button>
                 </div>
             @endif
 
@@ -321,8 +353,13 @@
             }
 
             // Render ulang icon Lucide
-            lucide.createIcons();
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
         }
+
+        @if(!isset($isExpired) || !$isExpired)
+        let trackingPollInterval = null;
 
         function pollOrderStatus() {
             fetch(`/cek-pesanan/${invoiceCode}`, {
@@ -340,6 +377,7 @@
 
                 // Jika sudah kedaluwarsa (> 24 jam), reload halaman untuk menampilkan pesan akses ditutup
                 if (data.is_expired) {
+                    if (trackingPollInterval) clearInterval(trackingPollInterval);
                     window.location.reload();
                     return;
                 }
@@ -356,7 +394,8 @@
         }
 
         // Cek update status pesanan setiap 3 detik
-        setInterval(pollOrderStatus, 3000);
+        trackingPollInterval = setInterval(pollOrderStatus, 3000);
+        @endif
     </script>
 
     <!-- AOS Script -->

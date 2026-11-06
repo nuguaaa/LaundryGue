@@ -1409,6 +1409,7 @@
             const payStatusElem = document.getElementById('ajaxResPaymentStatus');
             const detailBtn = document.getElementById('ajaxResDetailBtn');
 
+            if (trackErrBox) trackErrBox.classList.add('hidden');
             if (invoiceElem) invoiceElem.innerText = order.invoice_code;
             if (custElem) custElem.innerText = order.customer_name;
             if (badgeElem) {
@@ -1416,7 +1417,14 @@
                 badgeElem.className = `self-start sm:self-center px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${order.status_badge}`;
             }
             if (totalElem) totalElem.innerText = order.formatted_total;
-            if (payStatusElem) payStatusElem.innerText = `(${order.payment_status})`;
+            if (payStatusElem) {
+                payStatusElem.innerText = `(${order.payment_status})`;
+                if (order.payment_status === 'Lunas') {
+                    payStatusElem.className = 'text-[11px] text-emerald-600 ml-1 font-bold';
+                } else {
+                    payStatusElem.className = 'text-[11px] text-amber-600 ml-1 font-semibold';
+                }
+            }
             if (detailBtn) detailBtn.href = order.check_url;
 
             // Highlight Step Tracker
@@ -1450,13 +1458,21 @@
 
         window.clearAjaxTracking = function() {
             const ajaxResultCard = document.getElementById('ajaxTrackingResultCard');
+            const trackErrBox = document.getElementById('trackOrderAjaxError');
             const trackInput = document.getElementById('trackInvoiceInput');
             if (ajaxResultCard) ajaxResultCard.classList.add('hidden');
+            if (trackErrBox) trackErrBox.classList.add('hidden');
             if (trackInput) {
                 trackInput.value = '';
                 trackInput.focus();
             }
         };
+
+        if (window.location.hash === '#tracking' && trackInput) {
+            setTimeout(() => {
+                trackInput.focus();
+            }, 300);
+        }
 
 
         // ==========================================

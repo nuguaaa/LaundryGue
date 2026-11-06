@@ -33,10 +33,20 @@ Route::get('/kontak', [FrontendController::class, 'contact'])->name('frontend.co
 Route::get('/semua-testimoni', [FrontendController::class, 'testimonials'])->name('frontend.testimonials');
 Route::redirect('/ulasan', '/semua-testimoni');
 
-// Tracking & Cek Pesanan (dilindungi rate limiter untuk privasi PII)
+// Tracking & Cek Pesanan / Cek Nota (dilindungi rate limiter untuk privasi PII)
 Route::post('/track-order', [TransactionController::class, 'trackOrder'])->middleware('throttle:30,1')->name('track.order');
 Route::post('/cek-pesanan/search', [TransactionController::class, 'trackOrder'])->middleware('throttle:30,1');
+Route::post('/cek-nota', [TransactionController::class, 'trackOrder'])->middleware('throttle:30,1')->name('cek.nota.post');
 Route::get('/cek-pesanan/{invoice}', [TransactionController::class, 'checkOrderStatus'])->middleware('throttle:30,1')->name('cek.pesanan');
+Route::get('/cek-pesanan', function () {
+    return redirect()->to(url('/') . '#tracking');
+})->name('cek.pesanan.home');
+Route::get('/cek-nota/{invoice?}', function ($invoice = null) {
+    if ($invoice) {
+        return redirect()->route('cek.pesanan', $invoice);
+    }
+    return redirect()->to(url('/') . '#tracking');
+})->name('cek.nota');
 
 // Halaman Khusus Formulir Testimoni Sekali Pakai (One-Time Token Link)
 Route::get('/testimoni/{token?}', [TestimonialController::class, 'create'])->name('testimonial.create');

@@ -458,5 +458,122 @@ class UserAccessAndTrackingTest extends TestCase
         $resFixed->assertRedirect(route('admin.promos.index'));
         $this->assertDatabaseHas('promos', ['code' => 'HEMAT50RB', 'value' => 50000]);
     }
+
+    public function test_cek_nota_supports_phone_variations_and_case_insensitivity(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $trx = Transaction::create([
+            'invoice_code' => 'INV-20261106-ABC999',
+            'customer_name' => 'Budi Santoso',
+            'customer_phone' => '081234567899',
+            'total_price' => 25000,
+            'status' => 'Proses',
+            'user_id' => $admin->id,
+        ]);
+
+        $trx->details()->create([
+            'service_id' => 1,
+            'quantity' => 2,
+            'subtotal' => 25000,
+        ]);
+
+        // 1. Lowercase invoice code
+        $lowerRes = $this->postJson(route('track.order'), [
+            'invoice_code' => 'inv-20261106-abc999',
+        ]);
+        $lowerRes->assertStatus(200);
+        $lowerRes->assertJson(['success' => true]);
+
+        // 2. Invoice with hashtag #
+        $hashRes = $this->postJson(route('track.order'), [
+            'invoice_code' => '#INV-20261106-ABC999',
+        ]);
+        $hashRes->assertStatus(200);
+        $hashRes->assertJson(['success' => true]);
+
+        // 3. Invoice without INV- prefix
+        $prefixRes = $this->postJson(route('track.order'), [
+            'invoice_code' => '20261106-ABC999',
+        ]);
+        $prefixRes->assertStatus(200);
+        $prefixRes->assertJson(['success' => true]);
+
+        // 4. Phone with country code +62
+        $plus62Res = $this->postJson(route('track.order'), [
+            'invoice_code' => '+6281234567899',
+        ]);
+        $plus62Res->assertStatus(200);
+        $plus62Res->assertJson(['success' => true]);
+
+        // 5. Phone with country code 62
+        $phone62Res = $this->postJson(route('track.order'), [
+            'invoice_code' => '6281234567899',
+        ]);
+        $phone62Res->assertStatus(200);
+        $phone62Res->assertJson(['success' => true]);
+
+        // 6. Phone with dashes 0812-3456-7899
+        $dashPhoneRes = $this->postJson(route('track.order'), [
+            'invoice_code' => '0812-3456-7899',
+        ]);
+        $dashPhoneRes->assertStatus(200);
+        $dashPhoneRes->assertJson(['success' => true]);
+
+        // 7. Test via /cek-nota POST alias
+        $cekNotaPostRes = $this->postJson(route('cek.nota.post'), [
+            'invoice_code' => 'INV-20261106-ABC999',
+        ]);
+        $cekNotaPostRes->assertStatus(200);
+        $cekNotaPostRes->assertJson(['success' => true]);
+    }
+
+    public function test_cek_nota_and_cek_pesanan_routes_and_qr_code_display(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $trx = Transaction::create([
+            'invoice_code' => 'INV-20261106-XYZ777',
+            'customer_name' => 'Siti Nurhaliza',
+            'customer_phone' => '085611112222',
+            'total_price' => 35000,
+            'status' => 'Diambil',
+            'user_id' => $admin->id,
+        ]);
+
+        $trx->details()->create([
+            'service_id' => 1,
+            'quantity' => 3,
+            'subtotal' => 35000,
+        ]);
+
+        // /cek-pesanan without invoice redirects to /#tracking
+        $redirectPesanan = $this->get('/cek-pesanan');
+        $redirectPesanan->assertRedirect(url('/') . '#tracking');
+
+        // /cek-nota redirects to /#tracking
+        $redirectNota = $this->get('/cek-nota');
+        $redirectNota->assertRedirect(url('/') . '#tracking');
+
+        // /cek-nota/{invoice} redirects to /cek-pesanan/{invoice}
+        $redirectNotaInvoice = $this->get('/cek-nota/INV-20261106-XYZ777');
+        $redirectNotaInvoice->assertRedirect(route('cek.pesanan', 'INV-20261106-XYZ777'));
+
+        // View cek-pesanan contains QR Code for nota
+        $viewRes = $this->get(route('cek.pesanan', 'INV-20261106-XYZ777'));
+        $viewRes->assertStatus(200);
+        $viewRes->assertSee('QR Code Pelacakan');
+        $viewRes->assertSee('api.qrserver.com');
+        $viewRes->assertSee('Cetak / Simpan');
+
+        // Payment status is Lunas when Diambil
+        $ajaxRes = $this->postJson(route('track.order'), [
+            'invoice_code' => 'INV-20261106-XYZ777',
+        ]);
+        $ajaxRes->assertStatus(200);
+        $ajaxRes->assertJson([
+            'order' => [
+                'payment_status' => 'Lunas',
+            ]
+        ]);
+    }
 }
 
