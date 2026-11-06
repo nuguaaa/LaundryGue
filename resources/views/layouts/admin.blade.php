@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'LaundryGue') }} - Admin Panel</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
 
     <!-- Google Fonts: Plus Jakarta Sans (Keseragaman Font Seluruh Halaman) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,25 +54,6 @@
     <!-- Floating Toast Notification Container (Real-time SPA Alerts) -->
     <div id="spa-toast-container" class="fixed bottom-5 right-5 z-[99998] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
-    <!-- Splash Screen Page Transition (Admin & Kasir) -->
-    <div id="splashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-md transition-all duration-300 pointer-events-auto">
-        <div class="flex flex-col items-center text-center p-6">
-            <div class="relative flex items-center justify-center mb-5">
-                <div class="absolute w-20 h-20 rounded-2xl bg-sky-500/20 animate-ping"></div>
-                <div class="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 text-sky-400 flex items-center justify-center font-black text-2xl shadow-2xl shadow-sky-500/20">
-                    <span>LG</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <svg class="animate-spin h-4 w-4 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                </svg>
-                <span class="text-xs font-bold tracking-widest text-slate-300 uppercase">Memuat Dashboard...</span>
-            </div>
-        </div>
-    </div>
-
     <div class="min-h-screen flex flex-col lg:flex-row">
 
         <!-- ============================================================== -->
@@ -84,9 +66,7 @@
                 <!-- Header Drawer -->
                 <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black shadow-sm">
-                            <span class="text-sky-400 text-sm">LG</span>
-                        </div>
+                        <img src="{{ asset('img/logo.png') }}" alt="LaundryGue Logo" class="w-9 h-9 object-contain rounded-xl shadow-sm">
                         <div>
                             <span class="text-lg font-black text-slate-900 block leading-tight">LaundryGue</span>
                             <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">{{ ucfirst(auth()->user()->role ?? 'Staff') }} Panel</span>
@@ -100,6 +80,13 @@
 
                 <!-- Navigation Links Mobile -->
                 <nav class="p-4 space-y-1 text-sm overflow-y-auto max-h-[calc(100vh-140px)]">
+                    <div class="px-3 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Ringkasan</div>
+                    <a href="{{ route('dashboard') }}"
+                        class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('dashboard') || request()->routeIs('admin.dashboard') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-4 h-4 text-sky-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        Dashboard Ringkasan
+                    </a>
+
                     @if(auth()->user()->role == 'admin')
                         <div class="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Master Data</div>
                         <a href="{{ route('admin.services.index') }}"
@@ -112,10 +99,20 @@
                             <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                             Kelola Promo & Diskon
                         </a>
+                        <a href="{{ route('admin.testimonials.index') }}"
+                            class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('admin.testimonials.*') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            Kelola Testimoni & Link
+                        </a>
                         <a href="{{ route('admin.settings.index') }}"
                             class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('admin.settings.*') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                             <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             Pengaturan Website
+                        </a>
+                        <a href="{{ route('admin.landing-media.index') }}"
+                            class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('admin.landing-media.*') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                            <svg class="w-4 h-4 text-sky-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Kelola Gambar Beranda
                         </a>
                     @endif
 
@@ -174,9 +171,7 @@
             <div>
                 <!-- Logo / Brand -->
                 <div class="h-16 flex items-center px-6 border-b border-slate-200 gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black shadow-sm">
-                        <span class="text-sky-400 text-sm">LG</span>
-                    </div>
+                    <img src="{{ asset('img/logo.png') }}" alt="LaundryGue Logo" class="w-9 h-9 object-contain rounded-xl shadow-sm">
                     <div>
                         <span class="text-lg font-black text-slate-900 block leading-tight">LaundryGue</span>
                         <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">{{ ucfirst(auth()->user()->role ?? 'Staff') }} Panel</span>
@@ -185,6 +180,13 @@
 
                 <!-- Menu Link -->
                 <nav class="p-4 space-y-1 text-sm">
+                    <div class="px-3 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Ringkasan</div>
+                    <a href="{{ route('dashboard') }}"
+                        class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('dashboard') || request()->routeIs('admin.dashboard') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-4 h-4 text-sky-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        Dashboard Ringkasan
+                    </a>
+
                     @if(auth()->user()->role == 'admin')
                         <div class="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Master Data</div>
                         <a href="{{ route('admin.services.index') }}"
@@ -197,10 +199,20 @@
                             <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                             Kelola Promo & Diskon
                         </a>
+                        <a href="{{ route('admin.testimonials.index') }}"
+                            class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('admin.testimonials.*') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            Kelola Testimoni & Link
+                        </a>
                         <a href="{{ route('admin.settings.index') }}"
                             class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('admin.settings.*') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                             <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             Pengaturan Website
+                        </a>
+                        <a href="{{ route('admin.landing-media.index') }}"
+                            class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-semibold transition {{ request()->routeIs('admin.landing-media.*') ? 'bg-sky-50 text-sky-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                            <svg class="w-4 h-4 text-sky-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Kelola Gambar Beranda
                         </a>
                     @endif
 
@@ -268,9 +280,7 @@
 
                     <!-- Brand Mini untuk Mobile -->
                     <div class="flex items-center gap-2 lg:hidden">
-                        <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs">
-                            <span class="text-sky-400">LG</span>
-                        </div>
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-8 h-8 object-contain rounded-lg">
                     </div>
 
                     <!-- Judul Panel & Role Badge -->
@@ -320,7 +330,11 @@
             <!-- Page Content Area with Fluid Responsive Padding (SPA Dynamic Container) -->
             <main class="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col" id="spa-main-container">
                 <div id="spa-header">
-                    @if (isset($header))
+                    @hasSection('header')
+                        <div class="mb-5 sm:mb-6">
+                            @yield('header')
+                        </div>
+                    @elseif (isset($header))
                         <div class="mb-5 sm:mb-6">
                             {{ $header }}
                         </div>
@@ -366,19 +380,6 @@
 
     <!-- Script SPA Router Engine & Drawer Navigasi Mobile -->
     <script>
-        // Splash Screen Transition Handlers
-        function hideSplashScreen() {
-            const splash = document.getElementById('splashScreen');
-            if (splash) {
-                splash.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => { splash.style.display = 'none'; }, 300);
-            }
-        }
-
-        window.addEventListener('load', hideSplashScreen);
-        setTimeout(hideSplashScreen, 800);
-        window.addEventListener('pageshow', hideSplashScreen);
-
         // Drawer Mobile Navigation Handlers
         const drawer = document.getElementById('mobileDrawer');
         const backdrop = document.getElementById('mobileDrawerBackdrop');

@@ -20,9 +20,39 @@
 <body onload="window.print()">
 
     <!-- Tombol Aksi (Hilang saat diprint) -->
-    <div class="no-print">
-        <button onclick="window.history.back()" style="padding: 5px 10px; cursor: pointer;">&larr; Kembali</button>
-        <button onclick="window.print()" style="padding: 5px 10px; cursor: pointer; background: #000; color: #fff;">Cetak Struk</button>
+    <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center;">
+        <div style="display: flex; gap: 8px;">
+            <button onclick="window.history.back()" style="padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; font-size: 11px;">&larr; Kembali</button>
+            <button onclick="window.print()" style="padding: 6px 12px; cursor: pointer; background: #000; color: #fff; border-radius: 6px; border: none; font-weight: bold; font-size: 11px;">🖨️ Cetak Struk</button>
+        </div>
+
+        @php
+            $rawPhone = $transaction->customer_phone;
+            $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
+            if (str_starts_with($cleanPhone, '0')) {
+                $cleanPhone = '62' . substr($cleanPhone, 1);
+            }
+            $trackingLink = url('/cek-pesanan/' . $transaction->invoice_code);
+            $waMsg = "Halo kak *" . $transaction->customer_name . "*,\n\n"
+                   . "Terima kasih telah mempercayakan pakaian Anda di *LaundryGue*! ✨\n\n"
+                   . "🧾 *NOTA DIGITAL LAUNDRY*\n"
+                   . "• No. Nota: *" . $transaction->invoice_code . "*\n"
+                   . "• Tanggal : " . $transaction->created_at->format('d/m/Y H:i') . "\n";
+            foreach($transaction->details as $d) {
+                $waMsg .= "• " . ($d->service->name ?? 'Layanan') . " (" . $d->quantity . " " . ($d->service->unit ?? 'Kg') . ") : Rp " . number_format($d->subtotal, 0, ',', '.') . "\n";
+            }
+            $waMsg .= "• *Total Biaya: Rp " . number_format($transaction->total_price, 0, ',', '.') . "*\n"
+                   . "• Status Cucian: *" . $transaction->status . "*\n\n"
+                   . "🔍 Anda dapat memantau proses pengerjaan cucian secara berkala melalui link berikut:\n" . $trackingLink . "\n\n"
+                   . "Pakaian Anda kami cuci bersih, wangi, dan rapi! 🧺";
+        @endphp
+
+        @if(!empty($cleanPhone) && strlen($cleanPhone) >= 9)
+            <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($waMsg) }}" target="_blank"
+               style="display: inline-block; padding: 7px 14px; background: #16a34a; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                📱 Kirim Nota ke WhatsApp Pelanggan
+            </a>
+        @endif
     </div>
 
     <!-- Header Toko (Mengambil dari Database Settings & Nama LaundryGue) -->

@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tracking Resi #{{ $transaction->invoice_code }} — LaundryGue</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         @keyframes fadeInUp {
@@ -22,13 +24,18 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white relative overflow-x-hidden">
 
+    @php
+        $splashEnabled = ($settings['enable_splash_screen'] ?? '0') === '1';
+    @endphp
+
+    @if($splashEnabled)
     <!-- Splash Screen Page Transition -->
     <div id="splashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md transition-all duration-300 pointer-events-auto">
         <div class="flex flex-col items-center text-center p-6">
             <div class="relative flex items-center justify-center mb-5">
                 <div class="absolute w-20 h-20 rounded-2xl bg-sky-500/20 animate-ping"></div>
                 <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 text-sky-400 flex items-center justify-center font-black text-2xl shadow-2xl shadow-sky-500/20">
-                    <span>LG</span>
+                    <img src="{{ asset('img/logo.png') }}" alt="LaundryGue Logo" class="w-full h-full object-contain">
                 </div>
             </div>
             <div class="flex items-center gap-2.5">
@@ -40,6 +47,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Background Glow Effects -->
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-sky-500/10 blur-[120px] rounded-full pointer-events-none"></div>
@@ -47,9 +55,7 @@
     <!-- Header Sederhana -->
     <header class="w-full py-4 sm:py-6 px-4 sm:px-6 max-w-3xl mx-auto flex justify-between items-center z-10 gap-3">
         <a href="{{ url('/') }}" class="flex items-center space-x-2.5 sm:space-x-3 group">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 border border-slate-800 text-sky-400 flex items-center justify-center shadow-lg group-hover:scale-105 transition duration-300">
-                <i data-lucide="waves" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-            </div>
+            <img src="{{ asset('img/logo.png') }}" alt="LaundryGue Logo" class="w-9 h-9 sm:w-10 sm:h-10 object-contain rounded-xl shadow-lg group-hover:scale-105 transition duration-300">
             <div>
                 <span class="text-sm sm:text-base font-extrabold tracking-tight text-white block leading-none">LaundryGue</span>
                 <span class="text-[9px] font-bold tracking-widest text-sky-400 uppercase">Live Tracking System</span>
@@ -62,7 +68,7 @@
 
     <!-- Konten Utama -->
     <main class="w-full max-w-xl mx-auto px-4 py-4 sm:py-6 z-10 flex-grow flex items-center">
-        <div class="w-full bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 relative overflow-hidden animate-fade-in-up">
+        <div class="w-full bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 relative overflow-hidden animate-fade-in-up" data-aos="zoom-in">
 
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-500 via-indigo-500 to-sky-400"></div>
 
@@ -217,13 +223,11 @@
                     </div>
                 </div>
 
-                @if(isset($settings['whatsapp']))
                 <div class="mt-6">
-                    <a href="https://wa.me/{{ $settings['whatsapp'] }}?text=Halo%20Admin%20LaundryGue,%20saya%20ingin%20menanyakan%20status%20pesanan%20dengan%20nomor%20resi%20*{{ $transaction->invoice_code }}*" target="_blank" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-lg shadow-emerald-900/20 text-sm">
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings['whatsapp'] ?? '6281220295876') }}?text=Halo%20Admin%20LaundryGue,%20saya%20ingin%20menanyakan%20status%20pesanan%20dengan%20nomor%20resi%20*{{ $transaction->invoice_code }}*" target="_blank" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-lg shadow-emerald-900/20 text-sm">
                         <i data-lucide="message-circle" class="w-5 h-5"></i> Hubungi Outlet via WhatsApp
                     </a>
                 </div>
-                @endif
             @endif
 
         </div>
@@ -240,6 +244,7 @@
     <script>
         lucide.createIcons();
 
+        @if($splashEnabled)
         // Splash Screen Handler
         function hideSplashScreen() {
             const splash = document.getElementById('splashScreen');
@@ -251,6 +256,7 @@
         window.addEventListener('load', hideSplashScreen);
         setTimeout(hideSplashScreen, 800);
         window.addEventListener('pageshow', hideSplashScreen);
+        @endif
 
         // AJAX Real-time Tracking Synchronization
         const invoiceCode = "{{ $transaction->invoice_code }}";
@@ -351,6 +357,20 @@
 
         // Cek update status pesanan setiap 3 detik
         setInterval(pollOrderStatus, 3000);
+    </script>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 750,
+                once: false,
+                mirror: true,
+                offset: 50,
+                easing: 'ease-out-cubic'
+            });
+        }
     </script>
 </body>
 </html>

@@ -54,8 +54,12 @@
                     @enderror
                 </div>
                 <div>
-                    <label class="block text-slate-700 text-xs sm:text-sm font-bold uppercase tracking-wider mb-1.5">Besar Nilai <span class="text-red-500">*</span></label>
-                    <input type="number" step="any" name="value" id="promoValueInput" value="{{ old('value') }}" placeholder="Contoh: 10 (1 - 100)" class="w-full px-3.5 py-3 sm:py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-base sm:text-sm font-bold" required min="1" max="100">
+                    <label id="promoValueLabel" class="block text-slate-700 text-xs sm:text-sm font-bold uppercase tracking-wider mb-1.5">Besar Nilai Persentase (%) <span class="text-red-500">*</span></label>
+                    <div class="relative rounded-xl">
+                        <span id="promoValuePrefix" class="hidden absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500 font-bold text-sm">Rp</span>
+                        <input type="number" step="any" name="value" id="promoValueInput" value="{{ old('value') }}" placeholder="1 - 100" class="w-full px-3.5 pr-10 py-3 sm:py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-base sm:text-sm font-bold transition-all" required min="1" max="100">
+                        <span id="promoValueSuffix" class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-500 font-bold text-sm">%</span>
+                    </div>
                     <p id="promoValueHelp" class="text-[11px] text-slate-500 mt-1 font-medium">Batas persentase diskon: 1% s/d 100%.</p>
                     @error('value')
                         <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
@@ -90,15 +94,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             const typeSelect = document.getElementById('promoTypeSelect');
             const valueInput = document.getElementById('promoValueInput');
+            const valueLabel = document.getElementById('promoValueLabel');
+            const valuePrefix = document.getElementById('promoValuePrefix');
+            const valueSuffix = document.getElementById('promoValueSuffix');
             const valueHelp = document.getElementById('promoValueHelp');
 
             function updateValueRules() {
                 if (!typeSelect || !valueInput) return;
                 
                 if (typeSelect.value === 'percentage') {
+                    if (valueLabel) valueLabel.innerHTML = 'Besar Nilai Persentase (%) <span class="text-red-500">*</span>';
+                    if (valuePrefix) valuePrefix.classList.add('hidden');
+                    if (valueSuffix) valueSuffix.classList.remove('hidden');
+                    valueInput.classList.remove('pl-11');
+                    valueInput.classList.add('pr-10');
                     valueInput.min = '1';
                     valueInput.max = '100';
-                    valueInput.placeholder = 'Contoh: 10 (1 - 100)';
+                    valueInput.placeholder = '1 - 100';
                     if (valueHelp) {
                         valueHelp.textContent = 'Batas nilai persentase diskon: 1% s/d 100%.';
                     }
@@ -106,11 +118,16 @@
                         valueInput.value = 100;
                     }
                 } else {
+                    if (valueLabel) valueLabel.innerHTML = 'Besar Potongan Nominal (Rp) <span class="text-red-500">*</span>';
+                    if (valuePrefix) valuePrefix.classList.remove('hidden');
+                    if (valueSuffix) valueSuffix.classList.add('hidden');
+                    valueInput.classList.add('pl-11');
+                    valueInput.classList.remove('pr-10');
                     valueInput.min = '1';
                     valueInput.removeAttribute('max');
-                    valueInput.placeholder = 'Bebas, contoh: 5000, 15000, 50000';
+                    valueInput.placeholder = 'Bebas, contoh: 15000, 50000';
                     if (valueHelp) {
-                        valueHelp.textContent = 'Nominal rupiah bebas tanpa batas (contoh: 15.000).';
+                        valueHelp.textContent = 'Nominal rupiah bebas tanpa ada batasan nilai.';
                     }
                 }
             }

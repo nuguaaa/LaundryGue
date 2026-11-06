@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Pagination\Paginator; // <-- Tambahkan baris ini di atas
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +15,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Paginator::useTailwind(); // <-- Tambahkan baris ini di dalam boot
+        Schema::defaultStringLength(191);
+        Paginator::useTailwind();
     }
 }

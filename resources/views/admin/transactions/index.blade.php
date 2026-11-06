@@ -78,6 +78,15 @@
                         </td>
 
                         <td class="py-3.5 px-4 text-center space-y-1.5">
+                            <!-- Tombol Cetak Struk -->
+                            <div>
+                                <a href="{{ route('admin.transactions.receipt', $trx->id) }}"
+                                   target="_blank"
+                                   class="inline-flex items-center justify-center gap-1 bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border border-sky-200 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">
+                                    🖨️ Struk
+                                </a>
+                            </div>
+
                             <!-- Tombol Kirim WA Otomatis jika status Selesai -->
                             @if($trx->status == 'Selesai' && !empty($trx->customer_phone))
                                 <div>
@@ -86,6 +95,20 @@
                                        class="inline-flex items-center justify-center gap-1 bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-sm">
                                         💬 Kirim WA
                                     </a>
+                                </div>
+                            @endif
+
+                            @if(($trx->status == 'Selesai' || $trx->status == 'Diambil') && auth()->user()->role == 'admin')
+                                <div>
+                                    <form action="{{ route('admin.testimonials.tokens.store') }}" method="POST" class="inline-block">
+                                        @csrf
+                                        <input type="hidden" name="customer_name" value="{{ $trx->customer_name }}">
+                                        <input type="hidden" name="customer_phone" value="{{ $trx->customer_phone }}">
+                                        <input type="hidden" name="notes" value="Invoice #{{ $trx->invoice_code }}">
+                                        <button type="submit" class="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-600 text-amber-700 hover:text-white border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold transition shadow-sm" title="Buat Link Testimoni untuk Pelanggan Ini">
+                                            ⭐ Buat Link Testi
+                                        </button>
+                                    </form>
                                 </div>
                             @endif
 

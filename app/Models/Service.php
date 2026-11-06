@@ -9,7 +9,6 @@ class Service extends Model
 {
     use HasFactory;
 
-    // Tambahkan baris $fillable ini agar model mengizinkan penyimpanan data
     protected $fillable = [
         'category',
         'name',
@@ -17,4 +16,9 @@ class Service extends Model
         'price',
         'unit'
     ];
+
+    public function transactionDetails()
+    {
+        return $this->hasMany(TransactionDetail::class);
+    }
 }

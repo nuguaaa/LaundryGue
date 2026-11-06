@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes; // <-- 1. Tambahkan baris ini
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes; // <-- 2. Tambahkan SoftDeletes di sini
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',

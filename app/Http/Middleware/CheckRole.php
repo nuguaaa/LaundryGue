@@ -16,8 +16,8 @@ class CheckRole
             return redirect('/login');
         }
 
-        // Menggunakan Auth::user()
-        $userRole = Auth::user()->role ?? 'kasir';
+        // Default ke 'pelanggan' jika role tidak terdefinisi (bukan kasir)
+        $userRole = Auth::user()->role ?? 'pelanggan';
 
         if (in_array($userRole, $roles)) {
             return $next($request);

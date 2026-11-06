@@ -7,9 +7,10 @@ use App\Models\Transaction;
 use App\Models\Service;
 use App\Models\Promo;
 use App\Models\Expense;
-use App\Models\Setting; // <-- Pastikan model Setting di-import di sini
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class TransactionController extends Controller
@@ -47,6 +48,9 @@ class TransactionController extends Controller
         if ($request->filled('promo_code')) {
             $promo = Promo::where('code', $request->promo_code)->first();
             if ($promo) {
+                if ($promo->expired_date && Carbon::parse($promo->expired_date)->endOfDay()->isPast()) {
+                    return back()->withErrors(['promo_code' => 'Kupon promo sudah kedaluwarsa!'])->withInput();
+                }
                 if ($promo->type == 'percentage') {
                     $discount = ($subtotal * $promo->value) / 100;
                 } else {
@@ -59,8 +63,12 @@ class TransactionController extends Controller
 
         $finalPrice = max(0, $subtotal - $discount);
 
+        do {
+            $invoiceCode = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        } while (Transaction::where('invoice_code', $invoiceCode)->exists());
+
         $transaction = Transaction::create([
-            'invoice_code' => 'INV-' . date('Ymd') . '-' . rand(100, 999),
+            'invoice_code' => $invoiceCode,
             'customer_name' => $request->customer_name,
             'customer_phone' => $request->customer_phone,
             'total_price' => $finalPrice,
@@ -422,7 +430,8 @@ class TransactionController extends Controller
             ]);
         }
 
-        return view('frontend.cek-pesanan', compact('transaction', 'isExpired'));
+        $settings = Setting::pluck('value', 'key');
+        return view('frontend.cek-pesanan', compact('transaction', 'isExpired', 'settings'));
     }
 
     public function trackOrder(Request $request)
@@ -431,18 +440,36 @@ class TransactionController extends Controller
             'invoice_code' => 'required|string',
         ]);
 
+        $queryInput = trim($request->invoice_code);
         $transaction = Transaction::with(['details.service', 'user'])
-            ->where('invoice_code', trim($request->invoice_code))
+            ->where('invoice_code', $queryInput)
             ->first();
+
+        // Jika tidak ditemukan dengan nomor nota persis, cek apakah berupa nomor telepon pelanggan
+        if (!$transaction) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $queryInput);
+            if (strlen($cleanPhone) >= 8) {
+                // Utamakan mencari transaksi aktif (Baru/Proses/Selesai), jika tidak ada baru ambil riwayat terakhir
+                $transaction = Transaction::with(['details.service', 'user'])
+                    ->where(function ($q) use ($queryInput, $cleanPhone) {
+                        $q->where('customer_phone', $queryInput)
+                          ->orWhere('customer_phone', $cleanPhone)
+                          ->orWhere('customer_phone', 'like', "%{$cleanPhone}%");
+                    })
+                    ->orderByRaw("CASE WHEN status IN ('Baru', 'Proses', 'Selesai') THEN 0 ELSE 1 END")
+                    ->latest('id')
+                    ->first();
+            }
+        }
 
         if (!$transaction) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nomor nota / invoice tidak ditemukan. Periksa kembali ketikan Anda!'
+                    'message' => 'Nomor nota / nomor WhatsApp tidak ditemukan. Periksa kembali ketikan Anda!'
                 ], 404);
             }
-            return back()->with('error', 'Nomor nota / invoice tidak ditemukan. Periksa kembali ketikan Anda!');
+            return back()->with('error', 'Nomor nota / nomor WhatsApp tidak ditemukan. Periksa kembali ketikan Anda!');
         }
 
         $isCompleted = in_array($transaction->status, ['Selesai', 'Diambil']);
@@ -460,7 +487,44 @@ class TransactionController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'redirect' => route('cek.pesanan', $transaction->invoice_code)
+                'redirect' => route('cek.pesanan', $transaction->invoice_code),
+                'order' => [
+                    'invoice_code' => $transaction->invoice_code,
+                    'customer_name' => $transaction->customer_name,
+                    'customer_phone' => strlen($transaction->customer_phone) > 6 
+                        ? substr($transaction->customer_phone, 0, 4) . '****' . substr($transaction->customer_phone, -3)
+                        : $transaction->customer_phone,
+                    'status' => $transaction->status,
+                    'status_label' => match($transaction->status) {
+                        'Baru' => 'Pesanan Baru Diterima',
+                        'Proses' => 'Sedang Diproses Cuci / Setrika',
+                        'Selesai' => 'Selesai (Siap Diambil)',
+                        'Diambil' => 'Sudah Diambil Pelanggan',
+                        default => $transaction->status
+                    },
+                    'status_badge' => match($transaction->status) {
+                        'Baru' => 'bg-amber-100 text-amber-800 border-amber-300',
+                        'Proses' => 'bg-sky-100 text-sky-800 border-sky-300',
+                        'Selesai' => 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                        'Diambil' => 'bg-purple-100 text-purple-800 border-purple-300',
+                        default => 'bg-slate-100 text-slate-800 border-slate-300'
+                    },
+                    'total_price' => $transaction->total_price,
+                    'formatted_total' => 'Rp ' . number_format($transaction->total_price, 0, ',', '.'),
+                    'payment_status' => $transaction->payment_status ?? ($transaction->is_paid ? 'Lunas' : 'Belum Lunas'),
+                    'created_at' => $transaction->created_at ? $transaction->created_at->format('d M Y, H:i') : null,
+                    'updated_at' => $transaction->updated_at ? $transaction->updated_at->format('d M Y, H:i') : null,
+                    'items' => $transaction->details->map(fn($d) => [
+                        'name' => $d->service->name ?? 'Layanan Laundry',
+                        'qty' => $d->quantity,
+                        'unit' => $d->service->unit ?? 'Kg',
+                        'price' => $d->service->price ?? ($d->quantity > 0 ? (int)($d->subtotal / $d->quantity) : 0),
+                        'formatted_price' => 'Rp ' . number_format($d->service->price ?? ($d->quantity > 0 ? (int)($d->subtotal / $d->quantity) : 0), 0, ',', '.'),
+                        'subtotal' => $d->subtotal,
+                        'formatted_subtotal' => 'Rp ' . number_format($d->subtotal, 0, ',', '.'),
+                    ]),
+                    'check_url' => route('cek.pesanan', $transaction->invoice_code),
+                ]
             ]);
         }
 

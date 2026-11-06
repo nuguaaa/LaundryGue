@@ -43,7 +43,7 @@ public function store(Request $request)
     }
 
     public function restore($id) {
-        User::onlyTrashed()->find($id)->restore();
+        User::onlyTrashed()->findOrFail($id)->restore();
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'User dikembalikan.']);
         }
@@ -51,7 +51,7 @@ public function store(Request $request)
     }
 
     public function forceDelete($id) {
-        User::onlyTrashed()->find($id)->forceDelete(); // Hapus permanen dari database
+        User::onlyTrashed()->findOrFail($id)->forceDelete(); // Hapus permanen dari database
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'User dihapus permanen.']);
         }
