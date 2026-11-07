@@ -41,7 +41,6 @@
                         </div>
                         <p class="text-xs sm:text-sm text-slate-700 italic mb-3">"{{ $testimonial->message }}"</p>
                         <div class="text-xs font-bold text-slate-900">{{ $testimonial->name }}</div>
-                        <div class="text-[11px] text-slate-400">{{ $testimonial->role }}</div>
                     </div>
                 @endif
 

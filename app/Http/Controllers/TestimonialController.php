@@ -123,7 +123,7 @@ class TestimonialController extends Controller
 
         $testimonial = Testimonial::create([
             'name' => trim($request->name),
-            'role' => trim($request->role) ?: 'Pelanggan Setia',
+            'role' => '',
             'rating' => (int) $request->rating,
             'message' => trim($request->message),
         ]);

@@ -276,4 +276,46 @@ class TestimonialTest extends TestCase
         $adminRes->assertDontSee('unpkg.com/aos');
         $adminRes->assertDontSee('AOS.init');
     }
+
+    public function test_testimonial_has_no_customer_status_or_pelanggan_setia(): void
+    {
+        $token = TestimonialToken::generateToken([
+            'customer_name' => 'Budi Santoso',
+            'customer_phone' => '081234567890',
+        ]);
+
+        // Form does not contain role/status input or "Pelanggan Setia"
+        $formRes = $this->get(route('testimonial.create', ['token' => $token->token]));
+        $formRes->assertStatus(200);
+        $formRes->assertDontSee('name="role"', false);
+        $formRes->assertDontSee('Pelanggan Setia');
+
+        // Customer submits review without providing role
+        $submitRes = $this->post(route('testimonial.store', ['token' => $token->token]), [
+            'name' => 'Budi Santoso',
+            'rating' => 5,
+            'message' => 'Layanan sangat memuaskan dan pakaian sangat bersih!',
+        ]);
+        $submitRes->assertStatus(200);
+
+        // Verify in DB that role is empty string (not 'Pelanggan Setia')
+        $this->assertDatabaseHas('testimonials', [
+            'name' => 'Budi Santoso',
+            'role' => '',
+            'rating' => 5,
+            'message' => 'Layanan sangat memuaskan dan pakaian sangat bersih!',
+        ]);
+
+        // Homepage does not display "Pelanggan Setia" and section heading is "Apa Kata Pelanggan Kami?"
+        $homeRes = $this->get('/');
+        $homeRes->assertStatus(200);
+        $homeRes->assertSee('Apa Kata Pelanggan Kami?');
+        $homeRes->assertDontSee('Apa Kata Pelanggan Setia Kami?');
+        $homeRes->assertDontSee('Pelanggan Setia');
+
+        // All testimonials page does not display "Pelanggan Setia"
+        $allTestiRes = $this->get(route('frontend.testimonials'));
+        $allTestiRes->assertStatus(200);
+        $allTestiRes->assertDontSee('Pelanggan Setia');
+    }
 }

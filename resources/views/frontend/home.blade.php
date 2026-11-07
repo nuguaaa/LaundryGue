@@ -364,7 +364,7 @@
     <section id="testimoni" class="py-16 md:py-24 bg-white border-t border-slate-100 overflow-hidden" data-aos="fade-up">
         <div class="max-w-7xl mx-auto px-4 md:px-6 mb-8 md:mb-10 text-center">
             <span class="text-sky-600 text-xs font-extrabold uppercase tracking-widest block mb-2 md:mb-3">Ulasan Pengguna Terverifikasi</span>
-            <h2 class="text-2xl sm:text-3xl md:text-5xl font-black text-slate-900 mb-3 md:mb-4 tracking-tight">Apa Kata Pelanggan Setia Kami?</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-5xl font-black text-slate-900 mb-3 md:mb-4 tracking-tight">Apa Kata Pelanggan Kami?</h2>
             <p class="text-slate-600 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">Kepuasan dan aroma pakaian bersih Anda adalah prioritas utama standar kualitas layanan kami.</p>
         </div>
 
@@ -394,7 +394,6 @@
                     <div class="border-t border-slate-200/60 pt-4 flex items-center justify-between">
                         <div>
                             <h4 class="font-bold text-slate-900 text-xs sm:text-sm">{{ $testi->name }}</h4>
-                            <span class="text-[11px] text-slate-400 font-medium">{{ $testi->role }}</span>
                         </div>
                         <div class="w-9 h-9 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs uppercase">
                             {{ substr($testi->name, 0, 2) }}
@@ -424,7 +423,6 @@
                     <div class="border-t border-slate-200/60 pt-4 flex items-center justify-between">
                         <div>
                             <h4 class="font-bold text-slate-900 text-xs sm:text-sm">{{ $testi->name }}</h4>
-                            <span class="text-[11px] text-slate-400 font-medium">{{ $testi->role }}</span>
                         </div>
                         <div class="w-9 h-9 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs uppercase">
                             {{ substr($testi->name, 0, 2) }}

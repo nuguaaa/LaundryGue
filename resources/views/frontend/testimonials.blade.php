@@ -112,7 +112,6 @@
                     </div>
                     <div>
                         <h4 class="font-extrabold text-slate-900 text-xs sm:text-sm">{{ $testi->name }}</h4>
-                        <span class="text-[11px] text-slate-400 font-medium">{{ $testi->role }}</span>
                     </div>
                 </div>
                 <span class="text-[10px] text-slate-400 font-medium">

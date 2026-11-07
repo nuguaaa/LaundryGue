@@ -327,7 +327,6 @@
                         </td>
                         <td class="py-4 px-4 sm:px-6">
                             <div class="font-bold text-slate-900">{{ $testi->name }}</div>
-                            <div class="text-[11px] text-slate-400">{{ $testi->role }}</div>
                         </td>
                         <td class="py-4 px-4 sm:px-6 max-w-sm sm:max-w-md">
                             <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed">

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('role')->default('Pelanggan Setia');
+            $table->string('role')->default('');
             $table->text('message');
             $table->integer('rating')->default(5);
             $table->timestamps();
