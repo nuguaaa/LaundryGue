@@ -21,8 +21,9 @@
 
     <!-- Tombol Aksi (Hilang saat diprint) -->
     <div class="no-print" style="margin-bottom: 15px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center;">
-        <div style="display: flex; gap: 8px;">
-            <button onclick="window.history.back()" style="padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; font-size: 11px;">&larr; Kembali</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <a href="{{ route('admin.transactions.create') }}" style="text-decoration: none; padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: bold; font-size: 11px; background: #ffffff; color: #1e293b; display: inline-flex; align-items: center; gap: 4px;">&larr; Kembali ke Kasir</a>
+            <a href="{{ route('admin.transactions.index') }}" style="text-decoration: none; padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: bold; font-size: 11px; background: #f1f5f9; color: #1e293b; display: inline-flex; align-items: center; gap: 4px;">📋 Pesanan Aktif</a>
             <button onclick="window.print()" style="padding: 6px 12px; cursor: pointer; background: #000; color: #fff; border-radius: 6px; border: none; font-weight: bold; font-size: 11px;">🖨️ Cetak Struk</button>
         </div>
 
@@ -47,7 +48,7 @@
                    . "Pakaian Anda kami cuci bersih, wangi, dan rapi! 🧺";
         @endphp
 
-        @if(!empty($cleanPhone) && strlen($cleanPhone) >= 9)
+        @if(!empty($cleanPhone) && strlen($cleanPhone) >= 7)
             <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($waMsg) }}" target="_blank"
                style="display: inline-block; padding: 7px 14px; background: #16a34a; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 📱 Kirim Nota ke WhatsApp Pelanggan

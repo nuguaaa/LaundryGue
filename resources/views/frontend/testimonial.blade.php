@@ -134,24 +134,6 @@
                     </div>
                 @endif
 
-                <!-- Input Profesi / Status Pelanggan -->
-                <div>
-                    <label class="block text-slate-700 text-xs sm:text-sm font-bold uppercase tracking-wider mb-1.5">
-                        Status / Kategori Pelanggan
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                            <i data-lucide="briefcase" class="w-4 h-4"></i>
-                        </span>
-                        <input type="text" name="role" value="{{ old('role', 'Pelanggan Setia') }}" placeholder="Contoh: Pelanggan Setia / Mahasiswa / Warga Sekitar"
-                            class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                    </div>
-                    <p class="text-[11px] text-slate-400 mt-1">Opsional. Default: Pelanggan Setia.</p>
-                    @error('role')
-                        <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 <!-- Input Ulasan / Pesan Testimoni -->
                 <div>
                     <label class="block text-slate-700 text-xs sm:text-sm font-bold uppercase tracking-wider mb-1.5">

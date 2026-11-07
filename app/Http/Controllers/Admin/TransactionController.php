@@ -67,10 +67,17 @@ class TransactionController extends Controller
             $invoiceCode = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         } while (Transaction::where('invoice_code', $invoiceCode)->exists());
 
+        $customerPhone = preg_replace('/[^0-9]/', '', $request->customer_phone);
+        if (str_starts_with($customerPhone, '0')) {
+            $customerPhone = '62' . substr($customerPhone, 1);
+        } elseif (!str_starts_with($customerPhone, '62') && !empty($customerPhone)) {
+            $customerPhone = '62' . $customerPhone;
+        }
+
         $transaction = Transaction::create([
             'invoice_code' => $invoiceCode,
             'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
+            'customer_phone' => $customerPhone,
             'total_price' => $finalPrice,
             'status' => 'Baru',
             'user_id' => Auth::id(),
@@ -278,10 +285,17 @@ class TransactionController extends Controller
                     $invoiceCode = 'INV-' . $transactionDate->format('Ymd') . '-' . rand(1000, 9999);
                 }
 
+                $manualPhone = !empty($item['customer_phone']) ? preg_replace('/[^0-9]/', '', $item['customer_phone']) : '';
+                if (str_starts_with($manualPhone, '0')) {
+                    $manualPhone = '62' . substr($manualPhone, 1);
+                } elseif (!str_starts_with($manualPhone, '62') && !empty($manualPhone)) {
+                    $manualPhone = '62' . $manualPhone;
+                }
+
                 $transaction = new Transaction();
                 $transaction->invoice_code = $invoiceCode;
                 $transaction->customer_name = $item['customer_name'];
-                $transaction->customer_phone = !empty($item['customer_phone']) ? $item['customer_phone'] : '-';
+                $transaction->customer_phone = !empty($manualPhone) ? $manualPhone : '-';
                 $transaction->total_price = $totalPrice;
                 $transaction->status = 'Diambil';
                 $transaction->user_id = Auth::id() ?? 1;

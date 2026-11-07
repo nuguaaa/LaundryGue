@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.transactions.store') }}" method="POST" target="_blank" class="space-y-4 sm:space-y-5">
+        <form action="{{ route('admin.transactions.store') }}" method="POST" class="space-y-4 sm:space-y-5">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -36,7 +36,8 @@
                 </div>
                 <div>
                     <label class="block text-slate-700 text-xs sm:text-sm font-bold uppercase tracking-wider mb-1.5">No. WhatsApp / Telepon <span class="text-red-500">*</span></label>
-                    <input type="text" name="customer_phone" value="{{ old('customer_phone') }}" placeholder="081234567890" class="w-full px-3.5 py-3 sm:py-2.5 border border-slate-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" required>
+                    <input type="text" name="customer_phone" id="customer_phone_input" value="{{ old('customer_phone', '62') }}" placeholder="6281234567890" class="w-full px-3.5 py-3 sm:py-2.5 border border-slate-300 rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none font-semibold text-slate-800" required>
+                    <p class="text-[11px] text-slate-500 mt-1 font-medium">Nomor otomatis diawali <strong>62</strong> (contoh: 6281234567890).</p>
                 </div>
             </div>
 
@@ -157,6 +158,28 @@
             serviceSelect?.addEventListener('change', calculateTotal);
             qtyInput?.addEventListener('input', calculateTotal);
             promoCodeInput?.addEventListener('input', calculateTotal);
+
+            const phoneInput = document.getElementById('customer_phone_input');
+            if (phoneInput) {
+                function formatPhoneInput() {
+                    let val = phoneInput.value.replace(/[^0-9]/g, '');
+                    if (val.startsWith('0')) {
+                        val = '62' + val.substring(1);
+                    } else if (!val.startsWith('62') && val.length > 0) {
+                        val = '62' + val;
+                    }
+                    if (val === '') {
+                        val = '62';
+                    }
+                    phoneInput.value = val;
+                }
+                phoneInput.addEventListener('input', formatPhoneInput);
+                phoneInput.addEventListener('blur', function() {
+                    if (phoneInput.value.trim() === '' || phoneInput.value.trim() === '62') {
+                        phoneInput.value = '62';
+                    }
+                });
+            }
 
             calculateTotal();
         }

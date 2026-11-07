@@ -1380,7 +1380,10 @@
                     const data = await res.json().catch(() => null);
 
                     if (res.ok && data && data.success && data.order) {
-                        window.renderAjaxTrackingResult(data.order);
+                        if (trackBtnText) trackBtnText.textContent = 'Mengarahkan...';
+                        const targetUrl = data.redirect || (data.order && data.order.check_url) || ('/cek-pesanan/' + encodeURIComponent(data.order.invoice_code));
+                        window.location.href = targetUrl;
+                        return;
                     } else {
                         const msg = (data && data.message) ? data.message : 'Nomor nota / nomor WhatsApp tidak ditemukan. Periksa kembali ketikan Anda!';
                         if (trackErrText) trackErrText.textContent = msg;

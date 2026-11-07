@@ -557,12 +557,12 @@ class UserAccessAndTrackingTest extends TestCase
         $redirectNotaInvoice = $this->get('/cek-nota/INV-20261106-XYZ777');
         $redirectNotaInvoice->assertRedirect(route('cek.pesanan', 'INV-20261106-XYZ777'));
 
-        // View cek-pesanan contains QR Code for nota
+        // View cek-pesanan contains QR Code for nota and does not show print button
         $viewRes = $this->get(route('cek.pesanan', 'INV-20261106-XYZ777'));
         $viewRes->assertStatus(200);
         $viewRes->assertSee('QR Code Pelacakan');
         $viewRes->assertSee('api.qrserver.com');
-        $viewRes->assertSee('Cetak / Simpan');
+        $viewRes->assertDontSee('Cetak / Simpan');
 
         // Payment status is Lunas when Diambil
         $ajaxRes = $this->postJson(route('track.order'), [
@@ -574,6 +574,42 @@ class UserAccessAndTrackingTest extends TestCase
                 'payment_status' => 'Lunas',
             ]
         ]);
+    }
+
+    public function test_cashier_phone_normalized_to_62_and_receipt_has_navigation_links(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        // Kasir submits with 081234567890
+        $storeRes = $this->actingAs($admin)->post(route('admin.transactions.store'), [
+            'customer_name' => 'Bambang 62',
+            'customer_phone' => '081234567890',
+            'service_id' => 1,
+            'quantity' => 2,
+        ]);
+
+        $trx = Transaction::where('customer_name', 'Bambang 62')->first();
+        $this->assertNotNull($trx);
+        // Phone must be normalized to start with 62
+        $this->assertEquals('6281234567890', $trx->customer_phone);
+
+        // Redirects to receipt
+        $storeRes->assertRedirect(route('admin.transactions.receipt', $trx->id));
+
+        // Receipt page must contain reliable navigation links back to kasir & active orders
+        $receiptRes = $this->actingAs($admin)->get(route('admin.transactions.receipt', $trx->id));
+        $receiptRes->assertStatus(200);
+        $receiptRes->assertSee(route('admin.transactions.create'));
+        $receiptRes->assertSee('Kembali ke Kasir');
+        $receiptRes->assertSee(route('admin.transactions.index'));
+        $receiptRes->assertSee('Pesanan Aktif');
+    }
+
+    public function test_testimonial_form_does_not_have_status_kategori_field(): void
+    {
+        $response = $this->get(route('testimonial.create'));
+        $response->assertStatus(200);
+        $response->assertDontSee('Status / Kategori Pelanggan');
     }
 }
 
